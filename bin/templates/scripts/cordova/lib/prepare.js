@@ -69,7 +69,7 @@ module.exports.prepare = function (cordovaProject) {
  *   configuration is already dumped to appropriate config.xml file.
  */
 function updateConfigFile(sourceConfig, configMunger, locations) {
-    events.emit('verbose', 'Generating config.xml from defaults for platform "ios"');
+    events.emit('verbose', 'Generating config.xml from defaults for platform "osx"');
 
     // First cleanup current config and merge project's one into own
     // Overwrite platform config.xml with defaults.xml.
@@ -108,7 +108,7 @@ function updateWww(cordovaProject, destinations) {
     // If project contains 'merges' for our platform, use them as another overrides
     var merges_path = path.join(cordovaProject.root, 'merges', 'osx');
     if (fs.existsSync(merges_path)) {
-        events.emit('verbose', 'Found "merges" for ios platform. Copying over existing "www" files.');
+        events.emit('verbose', 'Found "merges" for osx platform. Copying over existing "www" files.');
         var overrides = path.join(merges_path, '*');
         shell.cp('-rf', overrides, destinations.www);
     }
@@ -123,12 +123,11 @@ function updateWww(cordovaProject, destinations) {
  */
 function updateProject(platformConfig, locations) {
 
-
     // CB-6992 it is necessary to normalize characters
     // because node and shell scripts handles unicode symbols differently
     // We need to normalize the name to NFD form since OSX uses NFD unicode form
     var name = unorm.nfd(platformConfig.name());
-    var pkg = platformConfig.osx_CFBundleIdentifier() || platformConfig.packageName();
+    var pkg = platformConfig.ios_CFBundleIdentifier() || platformConfig.packageName();
     var version = platformConfig.version();
 
     var originalName = path.basename(locations.xcodeCordovaProj);
@@ -140,7 +139,7 @@ function updateProject(platformConfig, locations) {
 
     // Update version (bundle version)
     infoPlist['CFBundleShortVersionString'] = version;
-    var CFBundleVersion = platformConfig.osx_CFBundleVersion() || default_CFBundleVersion(version);
+    var CFBundleVersion = platformConfig.ios_CFBundleVersion() || default_CFBundleVersion(version);
     infoPlist['CFBundleVersion'] = CFBundleVersion;
 
     // Update Author if present
@@ -211,7 +210,7 @@ function handleBuildSettings(platformConfig, locations) {
 
 function handleIcons(projectConfig, platformRoot) {
     // Update icons
-    var icons = projectConfig.getIcons('ios');
+    var icons = projectConfig.getIcons('osx');
     var appRoot = path.dirname(projectConfig.path);
 
     // See https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/OSXHIGuidelines/Designing.html
